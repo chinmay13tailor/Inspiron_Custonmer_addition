@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Machine Configuration</title>
+
+<style>
+body{
+  font-family:"Segoe UI",sans-serif;
+  background:#eef2f7;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  max-width:400px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+input{
+  width:100%;
+  margin:10px 0;
+  padding:10px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+}
+
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.submit-btn{
+  background:#2563eb;
+  color:white;
+  width:100%;
+}
+
+.popup{
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 15px 40px rgba(0,0,0,.2);
+  width:300px;
+}
+
+.popup button{
+  margin-top:10px;
+  width:48%;
+}
+
+.confirm{
+  background:green;
+  color:white;
+}
+
+.cancel{
+  background:red;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h3>Machine Configuration</h3>
+
+<input id="customer" placeholder="Customer Name">
+<input id="machine" placeholder="Machine ID">
+<input id="device" placeholder="Device ID">
+
+<button class="submit-btn" onclick="openConfirm()">Submit</button>
+
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+
+<h4>Confirm Details</h4>
+
+<p id="popupText"></p>
+
+<div style="display:flex;justify-content:space-between;">
+  <button class="confirm" onclick="saveData()">Confirm</button>
+  <button class="cancel" onclick="closePopup()">Cancel</button>
+</div>
+
+</div>
+
+<script>
+
+// 🔧 CONFIG
+const API="https://plantwiz.pimateck.in/api";
+const JWT=new URLSearchParams(location.search).get("token")||"";
+
+let DEVICE_ID = "";
+
+// 🧩 OPEN CONFIRM POPUP
+function openConfirm(){
+
+  const customer = document.getElementById("customer").value.trim();
+  const machine = document.getElementById("machine").value.trim();
+  const device = document.getElementById("device").value.trim();
+
+  if(!customer || !machine || !device){
+    alert("Please fill all fields");
+    return;
+  }
+
+  DEVICE_ID = device;
+
+  document.getElementById("popupText").innerHTML = `
+    <b>Customer:</b> ${customer}<br>
+    <b>Machine:</b> ${machine}<br>
+    <b>Device:</b> ${device}
+  `;
+
+  document.getElementById("popup").style.display="block";
+}
+
+// ❌ CLOSE POPUP
+function closePopup(){
+  document.getElementById("popup").style.display="none";
+}
+
+// 💾 SAVE DATA TO THINGSBOARD
+async function saveData(){
+
+  const customer = document.getElementById("customer").value.trim();
+  const machine = document.getElementById("machine").value.trim();
+
+  // 🔥 FINAL JSON STRUCTURE
+  const machineObj = {
+    customer: customer,
+    machine: machine,
+    device: DEVICE_ID
+  };
+
+  const payload = [{
+    ts: Date.now(),
+    values:{
+      Machine_ID: JSON.stringify(machineObj)   // 🔥 KEY PART
+    }
+  }];
+
+  try{
+
+    await fetch(`${API}/plugins/telemetry/DEVICE/${DEVICE_ID}/timeseries/ANY`,{
+
+      method:"POST",
+
+      headers:{
+        "X-Authorization":"Bearer "+JWT,
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify(payload)
+
+    });
+
+    alert("Saved Successfully ✅");
+
+    closePopup();
+
+    // optional: clear inputs
+    document.getElementById("customer").value="";
+    document.getElementById("machine").value="";
+    document.getElementById("device").value="";
+
+  }catch(err){
+    console.error(err);
+    alert("Error saving data ❌");
+  }
+
+}
+
+</script>
+
+</body>
+</html>
