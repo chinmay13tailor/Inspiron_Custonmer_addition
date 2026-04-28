@@ -104,9 +104,10 @@ button{
 const API="https://plantwiz.pimateck.in/api";
 const JWT=new URLSearchParams(location.search).get("token")||"";
 
-let DEVICE_ID = "";
+// 🔥 FIXED DEVICE ID (logging device)
+const LOG_DEVICE_ID = "befc6bf0-42df-11f1-b25a-9b1cf0871243";
 
-// 🧩 OPEN CONFIRM POPUP
+// 🧩 OPEN POPUP
 function openConfirm(){
 
   const customer = document.getElementById("customer").value.trim();
@@ -117,8 +118,6 @@ function openConfirm(){
     alert("Please fill all fields");
     return;
   }
-
-  DEVICE_ID = device;
 
   document.getElementById("popupText").innerHTML = `
     <b>Customer:</b> ${customer}<br>
@@ -134,29 +133,30 @@ function closePopup(){
   document.getElementById("popup").style.display="none";
 }
 
-// 💾 SAVE DATA TO THINGSBOARD
+// 💾 SAVE DATA
 async function saveData(){
 
   const customer = document.getElementById("customer").value.trim();
   const machine = document.getElementById("machine").value.trim();
+  const device = document.getElementById("device").value.trim(); // input device
 
-  // 🔥 FINAL JSON STRUCTURE
+  // 🔥 JSON OBJECT
   const machineObj = {
     customer: customer,
     machine: machine,
-    device: DEVICE_ID
+    device: device   // ✅ store input device id
   };
 
   const payload = [{
     ts: Date.now(),
     values:{
-      Machine_ID: JSON.stringify(machineObj)   // 🔥 KEY PART
+      Machine_ID: JSON.stringify(machineObj)
     }
   }];
 
   try{
 
-    await fetch(`${API}/plugins/telemetry/DEVICE/${DEVICE_ID}/timeseries/ANY`,{
+    await fetch(`${API}/plugins/telemetry/DEVICE/${LOG_DEVICE_ID}/timeseries/ANY`,{
 
       method:"POST",
 
@@ -173,7 +173,7 @@ async function saveData(){
 
     closePopup();
 
-    // optional: clear inputs
+    // clear inputs
     document.getElementById("customer").value="";
     document.getElementById("machine").value="";
     document.getElementById("device").value="";
