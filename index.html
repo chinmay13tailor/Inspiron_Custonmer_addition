@@ -5,40 +5,84 @@
 <title>Machine Configuration</title>
 
 <style>
+
 body{
   font-family:"Segoe UI",sans-serif;
   background:#eef2f7;
   padding:20px;
 }
 
+/* CARD */
+
 .card{
   background:white;
-  padding:20px;
-  border-radius:12px;
-  max-width:400px;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  padding:24px;
+  border-radius:16px;
+  width:380px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 18px 40px rgba(0,0,0,0.12);
+}
+
+.title{
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:18px;
+  color:#1e293b;
+}
+
+/* INPUT GROUP */
+
+.input-group{
+  margin-bottom:14px;
+}
+
+.label{
+  font-size:12px;
+  color:#64748b;
+  margin-bottom:5px;
 }
 
 input{
   width:100%;
-  margin:10px 0;
-  padding:10px;
-  border:1px solid #cbd5e1;
-  border-radius:8px;
+  padding:10px 12px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  font-size:13px;
+  transition:0.2s;
 }
 
-button{
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+input:focus{
+  outline:none;
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,0.15);
 }
+
+/* BUTTON */
 
 .submit-btn{
-  background:#2563eb;
-  color:white;
+  margin-top:12px;
   width:100%;
+  padding:12px;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
 }
+
+.submit-btn:hover{
+  box-shadow:0 8px 20px rgba(37,99,235,0.4);
+  transform:translateY(-1px);
+}
+
+/* POPUP */
 
 .popup{
   display:none;
@@ -47,41 +91,89 @@ button{
   left:50%;
   transform:translate(-50%,-50%);
   background:white;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 15px 40px rgba(0,0,0,.2);
-  width:300px;
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+  width:320px;
+  animation:fadeIn 0.25s ease;
 }
 
-.popup button{
-  margin-top:10px;
-  width:48%;
+@keyframes fadeIn{
+  from{opacity:0; transform:translate(-50%,-60%);}
+  to{opacity:1; transform:translate(-50%,-50%);}
+}
+
+.popup h4{
+  margin-bottom:10px;
+}
+
+.popup p{
+  font-size:13px;
+  color:#334155;
+  line-height:1.5;
+}
+
+.popup-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:14px;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
 }
 
 .confirm{
-  background:green;
+  flex:1;
+  background:#16a34a;
   color:white;
 }
 
 .cancel{
-  background:red;
+  flex:1;
+  background:#ef4444;
   color:white;
 }
+
+/* OPTIONAL: CENTER CARD */
+
+.wrapper{
+  display:flex;
+  justify-content:flex-start; /* change to center if needed */
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="wrapper">
 <div class="card">
 
-<h3>Machine Configuration</h3>
+<div class="title">Machine Configuration</div>
 
-<input id="customer" placeholder="Customer Name">
-<input id="machine" placeholder="Machine ID">
-<input id="device" placeholder="Device ID">
+<div class="input-group">
+  <div class="label">Customer Name</div>
+  <input id="customer" placeholder="Enter customer name">
+</div>
+
+<div class="input-group">
+  <div class="label">Machine ID</div>
+  <input id="machine" placeholder="Enter machine ID">
+</div>
+
+<div class="input-group">
+  <div class="label">Device ID</div>
+  <input id="device" placeholder="Enter device ID">
+</div>
 
 <button class="submit-btn" onclick="openConfirm()">Submit</button>
 
+</div>
 </div>
 
 <!-- POPUP -->
@@ -91,7 +183,7 @@ button{
 
 <p id="popupText"></p>
 
-<div style="display:flex;justify-content:space-between;">
+<div class="popup-buttons">
   <button class="confirm" onclick="saveData()">Confirm</button>
   <button class="cancel" onclick="closePopup()">Cancel</button>
 </div>
@@ -138,9 +230,8 @@ async function saveData(){
 
   const customer = document.getElementById("customer").value.trim();
   const machine = document.getElementById("machine").value.trim();
-  const device = document.getElementById("device").value.trim(); // input device
+  const device = document.getElementById("device").value.trim();
 
-  // 🔥 JSON OBJECT
   const machineObj = {
     customer: customer,
     machine: machine,
@@ -173,7 +264,6 @@ async function saveData(){
 
     closePopup();
 
-    // clear inputs
     document.getElementById("customer").value="";
     document.getElementById("machine").value="";
     document.getElementById("device").value="";
